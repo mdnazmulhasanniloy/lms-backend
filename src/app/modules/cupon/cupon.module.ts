@@ -1,8 +1,8 @@
 
 import { model, Schema } from 'mongoose';
-import { ICopun, ICopunModules } from './copun.interface';
+import { ICupon, ICuponModules } from './cupon.interface';
 
-const copunSchema = new Schema<ICopun>(
+const cuponSchema = new Schema<ICupon>(
   {
     isDeleted: { type: 'boolean', default: false },
   },
@@ -11,25 +11,25 @@ const copunSchema = new Schema<ICopun>(
   }
 );
 
-copunSchema.pre('find', function (next) {
+cuponSchema.pre('find', function (next) {
   //@ts-ignore
   this.find({ isDeleted: { $ne: true } });
   next();
 });
 
-copunSchema.pre('findOne', function (next) {
+cuponSchema.pre('findOne', function (next) {
   //@ts-ignore
   this.find({ isDeleted: { $ne: true } });
   next();
 });
 
-copunSchema.pre('aggregate', function (next) {
+cuponSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
   next();
 });
 
-const Copun = model<ICopun, ICopunModules>(
-  'Copun',
-  copunSchema
+const Cupon = model<ICupon, ICuponModules>(
+  'Cupon',
+  cuponSchema
 );
-export default Copun;
+export default Cupon;
