@@ -1,9 +1,13 @@
 import { Request, Response } from 'express';
 import catchAsync from '../../utils/catchAsync';
 import { postService } from './post.service';
-import sendResponse from '../../utils/sendResponse'; 
+import sendResponse from '../../utils/sendResponse';
+import { storeFile } from '../../utils/fileHelper';
 
 const createPost = catchAsync(async (req: Request, res: Response) => {
+  if (req.file) {
+    req.body.image = storeFile('post', req?.file?.filename);
+  }
   const result = await postService.createPost(req.body);
   sendResponse(res, {
     statusCode: 201,
@@ -22,7 +26,6 @@ const getAllPosts = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
 
 const getMyPosts = catchAsync(async (req: Request, res: Response) => {
   req.query['user'] = req.user.userId;
@@ -45,6 +48,9 @@ const getPostById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const updatePost = catchAsync(async (req: Request, res: Response) => {
+  if (req.file) {
+    req.body.image = storeFile('post', req?.file?.filename);
+  }
   const result = await postService.updatePost(req.params.id, req.body);
   sendResponse(res, {
     statusCode: 200,
