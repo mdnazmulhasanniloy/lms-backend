@@ -1,4 +1,3 @@
-
 import httpStatus from 'http-status';
 import { IPost } from './post.interface';
 import Post from './post.module';
@@ -14,7 +13,12 @@ const createPost = async (payload: IPost) => {
 };
 
 const getAllPost = async (query: Record<string, any>) => {
-  const postModel = new QueryBuilder(Post.find(), query)
+  const postModel = new QueryBuilder(
+    Post.find().populate([
+      { path: 'user', select: 'name email _id role image' },
+    ]),
+    query,
+  )
     .search([])
     .filter()
     .paginate()
@@ -47,11 +51,7 @@ const updatePost = async (id: string, payload: Partial<IPost>) => {
 };
 
 const deletePost = async (id: string) => {
-  const result = await Post.findByIdAndUpdate(
-    id,
-    { isDeleted: true },
-    { new: true }
-  );
+  const result = await Post.findByIdAndDelete(id);
   if (!result) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete post');
   }
