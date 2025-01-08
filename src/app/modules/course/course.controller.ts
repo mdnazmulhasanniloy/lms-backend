@@ -3,10 +3,14 @@ import catchAsync from '../../utils/catchAsync';
 import { CourseService } from './course.service';
 import sendResponse from '../../utils/sendResponse';
 import { storeFile } from '../../utils/fileHelper';
+import { uploadToS3 } from '../../utils/s3';
 
 const createCourse = catchAsync(async (req: Request, res: Response) => {
-  if (req.file) {
-    req.body.banner = storeFile('banner', req?.file?.filename);
+  if (req?.file) {
+    req.body.banner = await uploadToS3({
+      file: req.file,
+      fileName: `images/course/banner/${Math.floor(100000 + Math.random() * 900000)}`,
+    });
   }
   const result = await CourseService.createCourse(req.body);
   sendResponse(res, {
@@ -16,7 +20,6 @@ const createCourse = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-
 
 const getAllCourse = catchAsync(async (req: Request, res: Response) => {
   const result = await CourseService.getAllCourse(req.query);
@@ -28,7 +31,6 @@ const getAllCourse = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
 const getCourseById = catchAsync(async (req: Request, res: Response) => {
   const result = await CourseService.getCourseById(req.params.id);
   sendResponse(res, {
@@ -39,10 +41,12 @@ const getCourseById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
 const updateCourse = catchAsync(async (req: Request, res: Response) => {
-  if (req.file) {
-    req.body.banner = storeFile('banner', req?.file?.filename);
+  if (req?.file) {
+    req.body.banner = await uploadToS3({
+      file: req.file,
+      fileName: `images/course/banner/${Math.floor(100000 + Math.random() * 900000)}`,
+    });
   }
 
   const result = await CourseService.updateCourse(req.params.id, req.body);
@@ -54,21 +58,7 @@ const updateCourse = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
-const deleteVideoLink = catchAsync(async (req: Request, res: Response) => {
  
- 
-  const result = await CourseService.deleteVideoLink(
-    req.params.id,
-    req.query.key as string,
-  );
-  sendResponse(res, {
-    statusCode: 200,
-    success: true,
-    message: 'Videos deleted successfully',
-    data: result,
-  });
-});
 const deleteCourse = catchAsync(async (req: Request, res: Response) => {
   const result = await CourseService.deleteCourses(req.params.id);
   sendResponse(res, {
@@ -84,7 +74,5 @@ export const videosController = {
   getAllCourse,
   getCourseById,
   updateCourse,
-  deleteCourse,
-  deleteVideoLink,
- 
+  deleteCourse, 
 };

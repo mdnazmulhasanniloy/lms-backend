@@ -3,19 +3,31 @@ import { userController } from './user.controller';
 import validateRequest from '../../middleware/validateRequest';
 import { userValidation } from './user.validation';
 import auth from '../../middleware/auth';
-import { USER_ROLE } from './user.constants'; 
-import parseData from '../../middleware/parseData'; 
-import fileUpload from '../../middleware/fileUploader';
-const upload = fileUpload('./public/uploads/profile');
+import { USER_ROLE } from './user.constants';
+import parseData from '../../middleware/parseData';
+import multer, { memoryStorage } from 'multer';
 const router = Router();
- 
+const storage = memoryStorage();
+const upload = multer({ storage });
 
 router.post(
   '/',
-  upload.single("image"),
+  upload.single('image'),
   parseData(),
   validateRequest(userValidation?.guestValidationSchema),
   userController.createUser,
+);
+router.patch(
+  '/update-my-profile',
+  auth(
+    USER_ROLE.admin,
+    USER_ROLE.sub_admin,
+    USER_ROLE.super_admin,
+    USER_ROLE.user,
+  ),
+  upload.single('image'),
+  parseData(),
+  userController.updateMyProfile,
 );
 
 router.patch(
@@ -24,19 +36,6 @@ router.patch(
   upload.single('image'),
   parseData(),
   userController.updateUser,
-);
-
-router.patch(
-  '/update-my-profile',
-  auth(
-    USER_ROLE.admin,
-    USER_ROLE.sub_admin,
-    USER_ROLE.super_admin,
-    USER_ROLE.user, 
-  ),
-  upload.single('image'),
-  parseData(),
-  userController.updateMyProfile,
 );
 
 router.delete(
@@ -50,7 +49,16 @@ router.delete(
   userController.deleteUser,
 );
 
-router.get('/my-profile', auth(USER_ROLE.admin), userController.getMyProfile);
+router.get(
+  '/my-profile',
+  auth(
+    USER_ROLE.admin,
+    USER_ROLE.sub_admin,
+    USER_ROLE.super_admin,
+    USER_ROLE.user,
+  ),
+  userController.getMyProfile,
+);
 
 router.get('/:id', userController.getUserById);
 

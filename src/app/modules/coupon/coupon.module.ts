@@ -8,6 +8,7 @@ const couponSchema = new Schema<ICoupon>(
       required: true,
       unique: true,
       index: true,
+      
     },
     discount: {
       type: Number,
@@ -15,31 +16,13 @@ const couponSchema = new Schema<ICoupon>(
       min: 0,
       max: 100,
     },
-    expiresAt: { type: String, required: true },
-    isPublished: { type: Boolean, default: false },
+    expiresAt: { type: String, required: true }, 
     isDeleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,
   },
-);
-
-couponSchema.pre('find', function (next) {
-  //@ts-ignore
-  this.find({ isDeleted: { $ne: true } });
-  next();
-});
-
-couponSchema.pre('findOne', function (next) {
-  //@ts-ignore
-  this.find({ isDeleted: { $ne: true } });
-  next();
-});
-
-couponSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
-  next();
-});
+); 
 
 const Coupon = model<ICoupon, ICouponModules>('Coupon', couponSchema);
 export default Coupon;

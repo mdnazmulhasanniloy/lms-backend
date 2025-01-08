@@ -2,6 +2,9 @@ import { model, Schema } from 'mongoose';
 import { ICourses, ICoursesModels } from './course.interface';
 const coursesSchema = new Schema<ICourses>(
   {
+    id: {
+      type: String,
+    },
     title: {
       type: String,
       required: true,
@@ -14,22 +17,6 @@ const coursesSchema = new Schema<ICourses>(
       type: String,
       required: true,
     },
-    videos: [
-      {
-        url: {
-          type: String,
-          default: 'null',
-        },
-        title: {
-          type: String,
-          default: 'null',
-        },
-        key: {
-          type: String,
-          default: 'null',
-        },
-      },
-    ],
     price: {
       type: Number,
       default: 0,
@@ -42,7 +29,7 @@ const coursesSchema = new Schema<ICourses>(
         },
       ],
       default: [],
-    }, 
+    },
     avgRating: {
       type: Number,
       default: 0,
@@ -51,6 +38,7 @@ const coursesSchema = new Schema<ICourses>(
       type: Number,
       default: 0,
     },
+
     isDeleted: {
       type: Boolean,
       default: false,
@@ -58,25 +46,6 @@ const coursesSchema = new Schema<ICourses>(
   },
   { timestamps: true },
 );
-
-coursesSchema.pre('find', function (next) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
-  this.find({ isDeleted: { $ne: true } });
-  next();
-});
-
-coursesSchema.pre('findOne', function (next) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
-  this.find({ isDeleted: { $ne: true } });
-  next();
-});
-
-coursesSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
-  next();
-});
 
 const Courses = model<ICourses, ICoursesModels>('courses', coursesSchema);
 export default Courses;
