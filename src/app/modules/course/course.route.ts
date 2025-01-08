@@ -15,7 +15,7 @@ router.post(
   auth(USER_ROLE.admin),
   upload.single('banner'),
   parseData(),
-  validateRequest(videosValidator.createVideosZodSchema),
+  // validateRequest(videosValidator.createVideosZodSchema),
   videosController.createCourse,
 );
 
@@ -26,11 +26,7 @@ router.patch(
   parseData(),
   videosController.updateCourse,
 );
-router.delete(
-  '/delete-video-link/:id',
-  auth(USER_ROLE.admin),
-  videosController.deleteVideoLink,
-);
+ 
 router.delete(
   '/:id',
   auth(USER_ROLE.admin),

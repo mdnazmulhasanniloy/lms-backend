@@ -1,13 +1,11 @@
 import { Model, ObjectId } from 'mongoose';
 
-export interface ICourses {
-  links: string[];
+export interface ICourses { 
   id: string;
   _id: string;
   title: string;
   description: string;
   banner: string;
-  videos: { url: string; key: string , title:string}[];
   isPublished: boolean;
   price: number;
   sell: number;
