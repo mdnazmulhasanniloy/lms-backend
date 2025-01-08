@@ -11,7 +11,10 @@ import { storeFile } from '../../utils/fileHelper';
 
 const createUser = catchAsync(async (req: Request, res: Response) => {
   if (req?.file) {
-    req.body.image = storeFile('profile', req?.file?.filename);
+    req.body.image = await uploadToS3({
+      file: req.file,
+      fileName: `images/user/profile/${Math.floor(100000 + Math.random() * 900000)}`,
+    });
   }
   const result = await userService.createUser(req.body);
   const sendOtp = await otpServices.resendOtp(result?.email);
@@ -57,7 +60,10 @@ const updateUser = catchAsync(async (req: Request, res: Response) => {
   await User.findById(req.params.id);
 
   if (req?.file) {
-    req.body.image = storeFile('profile', req?.file?.filename);
+    req.body.image = await uploadToS3({
+      file: req.file,
+      fileName: `images/user/profile/${Math.floor(100000 + Math.random() * 900000)}`,
+    });
   }
   const result = await userService.updateUser(req.params.id, req.body);
   sendResponse(res, {
@@ -69,9 +75,11 @@ const updateUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
-  await User.findById(req.user.userId);
   if (req?.file) {
-    req.body.image = storeFile('profile', req?.file?.filename);
+    req.body.image = await uploadToS3({
+      file: req.file,
+      fileName: `images/user/profile/${Math.floor(100000 + Math.random() * 900000)}`,
+    });
   }
 
   const result = await userService.updateUser(req?.user?.userId, req.body);

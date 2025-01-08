@@ -87,25 +87,6 @@ userSchema.post(
   },
 );
 
-userSchema.pre<Query<IUser[], IUser>>('find', function (next) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
-  this.find({ isDeleted: { $ne: true } });
-  next();
-});
-
-userSchema.pre<Query<IUser | null, IUser>>('findOne', function (next) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
-  this.find({ isDeleted: { $ne: true } });
-  next();
-});
-
-userSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
-  next();
-});
-
 userSchema.statics.isUserExist = async function (email: string) {
   return await User.findOne({ email: email }).select('+password');
 };

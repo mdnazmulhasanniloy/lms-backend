@@ -1,11 +1,12 @@
-
 import httpStatus from 'http-status';
 import { ICoupon } from './coupon.interface';
 import Coupon from './coupon.module';
 import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../error/AppError';
+import generateRandomString from '../../utils/generateRandomString';
 
 const createCoupon = async (payload: ICoupon) => {
+  payload.code = generateRandomString(12);
   const result = await Coupon.create(payload);
   if (!result) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create coupon');
@@ -14,8 +15,8 @@ const createCoupon = async (payload: ICoupon) => {
 };
 
 const getAllCoupon = async (query: Record<string, any>) => {
-  const couponModel = new QueryBuilder(Coupon.find(), query)
-    .search([])
+  const couponModel = new QueryBuilder(Coupon.find({ isDeleted: false }), query)
+    .search([''])
     .filter()
     .paginate()
     .sort()
@@ -32,7 +33,7 @@ const getAllCoupon = async (query: Record<string, any>) => {
 
 const getCouponById = async (id: string) => {
   const result = await Coupon.findById(id);
-  if (!result) {
+  if (!result || result?.isDeleted) {
     throw new Error('Coupon not found!');
   }
   return result;
@@ -50,7 +51,7 @@ const deleteCoupon = async (id: string) => {
   const result = await Coupon.findByIdAndUpdate(
     id,
     { isDeleted: true },
-    { new: true }
+    { new: true },
   );
   if (!result) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete coupon');
