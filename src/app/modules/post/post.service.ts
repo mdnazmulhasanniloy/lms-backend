@@ -19,7 +19,7 @@ const getAllPost = async (query: Record<string, any>) => {
     ]),
     query,
   )
-    .search([])
+    .search(['title'])
     .filter()
     .paginate()
     .sort()
@@ -53,7 +53,10 @@ const updatePost = async (id: string, payload: Partial<IPost>) => {
 const deletePost = async (id: string) => {
   const result = await Post.findByIdAndDelete(id);
   if (!result) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete post coupon code ');
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Failed to delete post coupon code ',
+    );
   }
   return result;
 };
