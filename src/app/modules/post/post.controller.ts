@@ -3,11 +3,17 @@ import catchAsync from '../../utils/catchAsync';
 import { postService } from './post.service';
 import sendResponse from '../../utils/sendResponse';
 import { storeFile } from '../../utils/fileHelper';
+import { uploadToS3 } from '../../utils/s3';
 
 const createPost = catchAsync(async (req: Request, res: Response) => {
-  if (req.file) {
-    req.body.image = storeFile('post', req?.file?.filename);
+  if (req?.file) {
+    req.body.image = await uploadToS3({
+      file: req.file,
+      fileName: `images/user/profile/${Math.floor(100000 + Math.random() * 900000)}`,
+    });
   }
+
+  req.body.user = req?.user?.userId;
   const result = await postService.createPost(req.body);
   sendResponse(res, {
     statusCode: 201,
@@ -48,8 +54,11 @@ const getPostById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const updatePost = catchAsync(async (req: Request, res: Response) => {
-  if (req.file) {
-    req.body.image = storeFile('post', req?.file?.filename);
+  if (req?.file) {
+    req.body.image = await uploadToS3({
+      file: req.file,
+      fileName: `images/user/profile/${Math.floor(100000 + Math.random() * 900000)}`,
+    });
   }
   const result = await postService.updatePost(req.params.id, req.body);
   sendResponse(res, {
