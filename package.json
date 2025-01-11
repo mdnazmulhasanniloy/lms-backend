@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.620.1",
-    "@types/axios": "^0.14.0",
+    "@types/axios": "^0.14.4",
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
@@ -37,7 +37,7 @@
     "@types/stripe": "^8.0.417",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
-    "axios": "^1.7.2",
+    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
     "colors": "^1.4.0",
     "cookie-parser": "^1.4.6",
