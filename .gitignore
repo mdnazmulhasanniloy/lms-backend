@@ -3,3 +3,4 @@ logs/
 **/logs/
 .vercel
 nn.ts
+.env
