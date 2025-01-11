@@ -11,10 +11,10 @@ export const createCheckoutSession = async (payload: any) => {
     currency: 'BDT',
     tran_id: payload.tran_id,
 
-    success_url: 'http://115.127.156.14:9000/api/v1/payments/webhook',
-    fail_url: 'http://115.127.156.14:9000/fail',
-    cancel_url: 'http://115.127.156.14:9000/cancel',
-    ipn_url: 'http://115.127.156.14:9000/test',
+    success_url: `${config?.server_url}/payments/webhook`,
+    fail_url: `${config?.server_url}/fail`,
+    cancel_url: `${config?.server_url}/cancel`,
+    ipn_url: `${config?.server_url}/test`,
 
     product_name: 'course payment.',
     product_category: 'payment',
