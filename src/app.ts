@@ -28,6 +28,29 @@ app.use(
 // app.use(app.static('public'));
 
 // application routes
+app.get('/success', (req, res) => {
+  console.log('success');
+  console.log({
+    params: req.params,
+    query: req.query,
+    body: req.body,
+    headers: req.headers,
+    cookies: req.cookies,
+    ip: req.ip,
+  });
+});
+app.get('/fail', (req, res) => {
+  console.log('fail');
+  console.log({
+    params: req.params,
+    query: req.query,
+    body: req.body,
+    headers: req.headers,
+    cookies: req.cookies,
+    ip: req.ip,
+  });
+});
+
 app.use('/api/v1', router);
 app.get('/', (req: Request, res: Response) => {
   res.send('server is running');
