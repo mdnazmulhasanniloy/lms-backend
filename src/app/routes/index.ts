@@ -8,6 +8,7 @@ import { postRoutes } from '../modules/post/post.routes';
 import { couponRoutes } from '../modules/coupon/coupon.routes';
 import { enrollmentsRoutes } from '../modules/enrollments/enrollments.routes';
 import { blogsRoutes } from '../modules/blogs/blogs.routes';
+import { videosRoutes } from '../modules/videos/videos.routes';
 
 const router = Router();
 const moduleRoutes = [
@@ -30,6 +31,10 @@ const moduleRoutes = [
   {
     path: '/course',
     route: courseRoute,
+  },
+  {
+    path: '/videos',
+    route: videosRoutes,
   },
   {
     path: '/posts',
