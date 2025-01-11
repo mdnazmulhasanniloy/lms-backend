@@ -11,7 +11,7 @@ const userSchema: Schema<IUser> = new Schema(
       enum: ['active', 'blocked'],
       default: 'active',
     },
- 
+
     name: {
       type: String,
       default: null,
@@ -22,6 +22,11 @@ const userSchema: Schema<IUser> = new Schema(
       unique: true,
     },
     phoneNumber: {
+      type: String,
+      required: true,
+      default: null,
+    },
+    address: {
       type: String,
       default: null,
     },
@@ -57,7 +62,7 @@ const userSchema: Schema<IUser> = new Schema(
         type: Date,
       },
       status: {
-        type: Boolean, 
+        type: Boolean,
         default: false,
       },
     },
