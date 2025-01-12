@@ -7,6 +7,9 @@ export interface IPayments {
   user: ObjectId | IUser;
   amount: number;
   tranId: string;
+  tranDate: string;
+  paymentMethod: string;
+  paymentGatewayData: JSON;
   isPaid: boolean;
   isDeleted: boolean;
 }
