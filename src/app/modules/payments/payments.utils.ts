@@ -55,3 +55,30 @@ export const validatePayment = async (data: any) => {
     throw new AppError(httpStatus.BAD_REQUEST, 'payment validation failed');
   }
 };
+
+export const refundPayment = async (
+  tranId: string,
+  amount: number,
+  reason: string,
+) => {
+  const sslCommerzApiUrl =
+    'https://sandbox.sslcommerz.com/validator/api/merchantTransIDvalidationAPI.php';  
+  const data = {
+    tran_id: tranId,
+    refund_amount: amount,
+    refund_reason: reason,
+  };
+
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: 'YOUR_SSL_COMMERZ_API_KEY',  
+  };
+
+  const response = await axios.post(sslCommerzApiUrl, data, { headers });
+  if (response.data?.status !== 'SUCCESS') {
+    throw new Error(
+      `Refund failed: ${response.data?.errorMessage || 'Unknown error'}`,
+    );
+  }
+  return response.data;
+};

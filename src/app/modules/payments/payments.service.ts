@@ -8,6 +8,7 @@ import { IEnrollments } from '../enrollments/enrollments.interface';
 import Enrollments from '../enrollments/enrollments.module';
 import { IUser } from '../user/user.interface';
 import { createCheckoutSession, validatePayment } from './payments.utils';
+import { startSession } from 'mongoose';
 
 const initPayment = async (payload: any) => {
   let paymentData;
@@ -73,13 +74,122 @@ const initPayment = async (payload: any) => {
 };
 
 const webhook = async (query: Record<string, any>) => {
-  if (query?.status !== 'VALID') {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid payment Payment');
+  const session = await startSession();
+  session.startTransaction();
+
+  try {
+    if (query?.status !== 'VALID') {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Invalid payment');
+    }
+
+    const result = await validatePayment(query);
+    if (result.status !== 'VALID') {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Payment validation failed');
+    }
+
+    const { tran_id, tran_date, card_type } = result;
+
+    // Update payment record
+    const payment = await Payments.findOneAndUpdate(
+      { tranId: tran_id },
+      {
+        isPaid: true,
+        tranDate: tran_date,
+        paymentMethod: card_type,
+        paymentGatewayData: query,
+      },
+      { new: true, session },
+    );
+
+    if (!payment) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Payment update failed');
+    }
+
+    // Update enrollment record
+    const enrollments = await Enrollments.findByIdAndUpdate(
+      payment?.enrollment,
+      {
+        isPaid: true,
+        tranId: tran_id,
+      },
+      { new: true, session },
+    ).populate([
+      { path: 'user', select: 'name email phoneNumber image' },
+      { path: 'course' },
+    ]);
+
+    if (!enrollments) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Enrollment update failed');
+    }
+
+    // Commit transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    return { success: true, message: 'Payment processed successfully' };
+  } catch (error: any) {
+    // Rollback transaction
+    await session.abortTransaction();
+    session.endSession();
+
+    // Refund the payment if an error occurred after marking it as paid
+    // if (query?.status === 'VALID' && query?.tran_id) {
+    //   try {
+    //     await refundPayment(
+    //       query.tran_id,
+    //       query.amount,
+    //       query.reason || 'System error',
+    //     );
+    //   } catch (refundError) {
+    //     console.error('Refund failed:', refundError);
+    //     throw new AppError(
+    //       httpStatus.INTERNAL_SERVER_ERROR,
+    //       'Payment processing failed, and refund attempt was unsuccessful',
+    //     );
+    //   }
+    // }
+
+    // Throw the original error
+    throw new AppError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      error?.message || 'An unexpected error occurred',
+    );
   }
-  const result = await validatePayment(query);
-  console.log(result);
-  return query;
 };
+
+// const webhook = async (query: Record<string, any>) => {
+//   if (query?.status !== 'VALID') {
+//     throw new AppError(httpStatus.BAD_REQUEST, 'Invalid payment Payment');
+//   }
+//   const result = await validatePayment(query);
+//   if (result.status !== 'VALID') {
+//     throw new AppError(httpStatus.BAD_REQUEST, 'Payment Failed');
+//   }
+//   const { tran_id, tran_date, card_type } = result;
+//   const payment = await Payments.findOneAndUpdate(
+//     {
+//       tranId: tran_id,
+//     },
+//     {
+//       isPaid: true,
+//       tranDate: tran_date,
+//       paymentMethod: card_type,
+//       paymentGatewayData: query
+//     },
+//     { new: true },
+//   );
+
+//   if (!payment) {
+//     throw new AppError(httpStatus.BAD_REQUEST, 'Payment update failed');
+//   }
+//   const enrollments = await Enrollments.findByIdAndUpdate(payment?.enrollment, {
+//     isPaid: true,
+//     tranId: tran_id,
+//   }).populate([
+//     { path: 'user', select: 'name email phoneNumber image' },
+//     { path: 'course' },
+//   ]);
+// };
 
 const createPayments = async (payload: IPayments) => {
   const result = await Payments.create(payload);
