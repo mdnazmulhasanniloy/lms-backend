@@ -25,6 +25,18 @@ const paymentsSchema = new Schema<IPayments>(
       type: String,
       default: null,
     },
+    tranDate: {
+      type: String,
+      default: null,
+    },
+    paymentGatewayData: {
+      type: JSON,
+      default: null,
+    },
+    paymentMethod: {
+      type: String,
+      default: null,
+    },
     isDeleted: { type: Boolean, default: false },
   },
   {
