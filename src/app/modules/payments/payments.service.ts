@@ -7,7 +7,7 @@ import generateRandomString from '../../utils/generateRandomString';
 import { IEnrollments } from '../enrollments/enrollments.interface';
 import Enrollments from '../enrollments/enrollments.module';
 import { IUser } from '../user/user.interface';
-import { createCheckoutSession } from './payments.utils';
+import { createCheckoutSession, validatePayment } from './payments.utils';
 
 const initPayment = async (payload: any) => {
   let paymentData;
@@ -73,7 +73,11 @@ const initPayment = async (payload: any) => {
 };
 
 const webhook = async (query: Record<string, any>) => {
-  console.log(query);
+  if (query?.status !== 'VALID') {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid payment Payment');
+  }
+  const result = await validatePayment(query);
+  console.log(result);
   return query;
 };
 
